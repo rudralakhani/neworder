@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import OrderForm from './components/OrderForm';
-import PreviewModal from './components/PreviewModal';
+// src/App.js
+import React, { useState } from 'react';
+import OrderForm from './components/OrderForm.jsx';
+import PreviewModal from './components/PreviewModal.jsx';
 import { db } from './firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
@@ -13,32 +14,23 @@ function App() {
     setShowPreview(true);
   };
 
- const handleConfirm = async () => {
-  try {
-    // Add timestamp to order data
-    const orderWithTimestamp = {
-      ...orderData,
-      createdAt: new Date().toISOString()
-    };
-    
-    await addDoc(collection(db, 'orders'), orderWithTimestamp);
-    
-    alert('Order saved successfully!');
-    setShowPreview(false);
-    // Reset form instead of reloading
-    setOrderId(generateOrderId());
-    setClientName('');
-    setFile(null);
-    setPrice('');
-    setProductName('');
-    setQuantity(1);
-    setJewelryType(null);
-    setJewelryDetails({});
-  } catch (error) {
-    console.error('Error saving order:', error);
-    alert(`Failed to save order: ${error.message}`);
-  }
-};
+  const handleConfirm = async () => {
+    try {
+      // Add timestamp to order data
+      const orderWithTimestamp = {
+        ...orderData,
+        createdAt: new Date().toISOString()
+      };
+      
+      await addDoc(collection(db, 'orders'), orderWithTimestamp);
+      
+      alert('Order saved successfully!');
+      setShowPreview(false);
+    } catch (error) {
+      console.error('Error saving order:', error);
+      alert(`Failed to save order: ${error.message}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">

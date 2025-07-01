@@ -1,3 +1,4 @@
+// src/components/PreviewModal.js
 import React from 'react';
 
 const PreviewModal = ({ data, onConfirm, onCancel }) => {
@@ -12,10 +13,23 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
       { label: 'Gold Type', value: details.goldType },
       { label: 'Gold Color', value: details.goldColor },
       { label: 'Diamond Type', value: details.diamondType },
-      { label: 'Certification', value: details.diamondCertification },
-      { label: 'Clarity', value: details.clarity },
+      { 
+        label: 'Diamond Colors', 
+        value: details.diamondColors?.join(', ') || 'None' 
+      },
+      { 
+        label: 'Certification', 
+        value: details.diamondCertification 
+      },
+      { 
+        label: 'Clarities', 
+        value: details.clarities?.join(', ') || 'None' 
+      },
       { label: 'Diamond Size', value: details.diamondSize },
-      { label: 'Shape', value: details.shape },
+      { 
+        label: 'Shapes', 
+        value: details.shapes?.join(', ') || 'None' 
+      },
       { label: 'Notes', value: details.notes },
     ];
     
@@ -23,6 +37,9 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
     switch (data.jewelryType) {
       case 'Ring':
         typeSpecificDetails.push({ label: 'Ring Size', value: `${details.ringSize} (${details.sizeUnit})` });
+        break;
+      case 'EarRing':
+        typeSpecificDetails.push({ label: 'Fitting Type', value: details.fittingType });
         break;
       case 'Bracletes':
         typeSpecificDetails.push({ label: 'Bracelet Size', value: `${details.braceletSize} inches` });
