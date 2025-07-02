@@ -21,7 +21,7 @@ const OrderForm = ({ onSubmit }) => {
   const [file, setFile] = useState(null);
   const [price, setPrice] = useState('');
   const [productName, setProductName] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState('');
   const [jewelryType, setJewelryType] = useState(null);
   const [jewelryDetails, setJewelryDetails] = useState({});
   
@@ -46,13 +46,20 @@ const OrderForm = ({ onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Validate quantity
+    const qty = parseInt(quantity);
+    if (isNaN(qty) || qty < 1) {
+      alert('Please enter a valid quantity (minimum 1)');
+      return;
+    }
+    
     const orderData = {
       orderId,
       clientName,
       file: file ? file.name : null,
       price,
       productName,
-      quantity,
+      quantity: qty,
       jewelryType,
       jewelryDetails
     };
@@ -180,9 +187,9 @@ const OrderForm = ({ onSubmit }) => {
           <input
             type="number"
             value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-            min="1"
+            onChange={(e) => setQuantity(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="Enter quantity"
             required
           />
         </div>

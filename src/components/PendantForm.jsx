@@ -11,6 +11,8 @@ const PendantForm = ({ details, setDetails }) => {
 
   // State for chain options
   const [chainOption, setChainOption] = useState(details.chainOption || '');
+  
+  const showDiamondDetails = details.diamondType !== 'Other';
 
   return (
     <div className="space-y-6">
@@ -58,7 +60,7 @@ const PendantForm = ({ details, setDetails }) => {
       
       {/* Diamond Type */}
       <div>
-        <label className="block text-gray-700 font-medium mb-2">Diamond Type</label>
+        <label className="block text-gray-700 font-medium mb-极端的2">Diamond Type</label>
         <div className="grid grid-cols-3 gap-2">
           {['CVD', 'Natural', 'Other'].map(type => (
             <button
@@ -90,56 +92,61 @@ const PendantForm = ({ details, setDetails }) => {
         )}
       </div>
       
-      {/* Diamond Certification */}
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">Diamond Certification</label>
-        <div className="grid grid-cols-2 gap-2">
-          {['Certified', 'Non-Certified'].map(cert => (
-            <button
-              key={cert}
-              type="button"
-              onClick={() => handleChange('diamondCertification', details.diamondCertification === cert ? '' : cert)}
-              className={`py-2.5 rounded-lg border font-medium ${
-                details.diamondCertification === cert 
-                  ? 'bg-green-100 border-green-500 text-green-700' 
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {cert}
-            </button>
-          ))}
-        </div>
-      </div>
-      
-      {/* Diamond Colors */}
-      <DiamondColorSelector 
-        values={details.diamondColors || []} 
-        onChange={(values) => handleChange('diamondColors', values)} 
-      />
-      
-      {/* Diamond Clarities */}
-      <DiamondClaritySelector 
-        values={details.clarities || []} 
-        onChange={(values) => handleChange('clarities', values)} 
-      />
-      
-      {/* Diamond Size */}
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">Diamond Size (carat)</label>
-        <input
-          type="text"
-          value={details.diamondSize || ''}
-          onChange={(e) => handleChange('diamondSize', e.target.value)}
-          className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-          placeholder="Enter diamond size"
-        />
-      </div>
-      
-      {/* Diamond Shapes */}
-      <DiamondShapeSelector 
-        values={details.shapes || []} 
-        onChange={(values) => handleChange('shapes', values)} 
-      />
+      {/* Show diamond details only if not "Other" */}
+      {showDiamondDetails && (
+        <>
+          {/* Diamond Certification */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Diamond Certification</label>
+            <div className="grid grid-cols-2 gap-2">
+              {['Certified', 'Non-Certified'].map(cert => (
+                <button
+                  key={cert}
+                  type="button"
+                  onClick={() => handleChange('diamondCertification', details.diamondCertification === cert ? '' : cert)}
+                  className={`py-2.5 rounded-lg border font-medium ${
+                    details.diamondCertification === cert 
+                      ? '极端的bg-green-100 border-green-500 text-green-700' 
+                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {cert}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Diamond Colors */}
+          <DiamondColorSelector 
+            values={details.diamondColors || []} 
+            onChange={(values) => handleChange('diamondColors', values)} 
+          />
+          
+          {/* Diamond Clarities */}
+          <DiamondClaritySelector 
+            values={details.clarities || []} 
+            onChange={(values) => handleChange('clarities', values)} 
+          />
+          
+          {/* Diamond Size */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Diamond Size (carat)</label>
+            <input
+              type="text"
+              value={details.diamondSize || ''}
+              onChange={(e) => handleChange('diamondSize', e.target.value)}
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="Enter diamond size"
+            />
+          </div>
+          
+          {/* Diamond Shapes */}
+          <DiamondShapeSelector 
+            values={details.shapes || []} 
+            onChange={(values) => handleChange('shapes', values)} 
+          />
+        </>
+      )}
       
       {/* Chain Options */}
       <div>

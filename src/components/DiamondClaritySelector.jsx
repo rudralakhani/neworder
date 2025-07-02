@@ -2,7 +2,7 @@
 import React from 'react';
 
 const DiamondClaritySelector = ({ values, onChange }) => {
-  const clarities = ['FL', 'IF', 'WS1', 'WS2', 'VS1', 'VS2', 'S11', 'S12'];
+  const clarities = ['FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2'];
   
   const handleSelection = (clarity) => {
     if (values.includes(clarity)) {
