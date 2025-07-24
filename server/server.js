@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // Allow CORS for frontend running on http://localhost:5173
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: ['http://localhost:5173', 'https://neworder-tau.vercel.app'] }));
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
