@@ -5,26 +5,36 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
 
   const handleSendEmail = async () => {
     setIsSending(true);
-    try {
-      const backendUrl = 'http://localhost:3001'||'https://neworder-98y8ld2ql-rudras-projects-a9031e17.vercel.app'
-      const response = await fetch(`${backendUrl}/send-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+    const maxRetries = 3;
+    let attempts = 0;
 
-      if (!response.ok) {
-        throw new Error('Failed to send email');
+    while (attempts < maxRetries) {
+      try {
+        const response = await fetch('https://neworder-tau.vercel.app/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        alert('Email sent successfully!');
+        setIsSending(false);
+        return;
+      } catch (error) {
+        console.error(`Attempt ${attempts + 1} failed:`, error);
+        attempts++;
+        if (attempts === maxRetries) {
+          alert('Failed to send email after multiple attempts');
+          setIsSending(false);
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-
-      alert('Email sent successfully!');
-    } catch (error) {
-      console.error('Error sending email:', error);
-      alert('Failed to send email');
-    } finally {
-      setIsSending(false);
     }
   };
 
