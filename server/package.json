@@ -1,0 +1,15 @@
+{
+  "name": "new-order-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.8",
+    "html-pdf": "^3.0.0",
+    "cors": "^2.8.5"
+  }
+}
