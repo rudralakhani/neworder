@@ -6,7 +6,8 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
   const handleSendEmail = async () => {
     setIsSending(true);
     try {
-      const response = await fetch('http://localhost:3001/send-email', {
+      const backendUrl = 'http://localhost:3001'||'https://neworder-98y8ld2ql-rudras-projects-a9031e17.vercel.app'
+      const response = await fetch(`${backendUrl}/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
