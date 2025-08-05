@@ -27,7 +27,8 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
     try {
       if (snapshotRef.current) {
         replaceOklchColors(snapshotRef.current);
-        console.log('Snapshot data:', data); // Debug data
+        console.log('Full Snapshot Data:', data); // Debug full data
+        console.log('Jewelry Details:', data.jewelryDetails); // Debug jewelryDetails
 
         // Ensure snapshotRef is off-screen but accessible
         const snapshotElement = snapshotRef.current;
@@ -41,62 +42,68 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
         // Force reflow to ensure DOM is updated
         snapshotElement.offsetHeight;
 
-        html2canvas(snapshotRef.current, {
-          scale: 1,
-          backgroundColor: '#ffffff',
-          logging: true,
-          useCORS: true,
-          allowTaint: true, // Allow tainted canvases if external resources are involved
-        }).then(canvas => {
-          // Restore original styles
-          snapshotElement.style.display = originalDisplay;
-          snapshotElement.style.position = originalPosition;
-          snapshotElement.style.left = originalLeft;
+        // Wait for a brief moment to ensure DOM is ready
+        setTimeout(() => {
+          html2canvas(snapshotRef.current, {
+            scale: 3, // Increase scale for higher resolution
+            backgroundColor: '#ffffff',
+            logging: true,
+            useCORS: true,
+            allowTaint: true,
+            letterRendering: true, // Improve text rendering
+            width: 800, // Explicitly set width for better control
+            height: 1000, // Increased height to accommodate all 9 items
+          }).then(canvas => {
+            // Restore original styles
+            snapshotElement.style.display = originalDisplay;
+            snapshotElement.style.position = originalPosition;
+            snapshotElement.style.left = originalLeft;
 
-          // Check if canvas is valid
-          if (!canvas || canvas.width === 0 || canvas.height === 0) {
-            console.error('Invalid canvas generated', {
-              canvasWidth: canvas ? canvas.width : 'null',
-              canvasHeight: canvas ? canvas.height : 'null',
-              snapshotRefInnerHTML: snapshotRef.current.innerHTML,
-            });
-            alert('Failed to capture snapshot: Invalid canvas.');
+            // Check if canvas is valid
+            if (!canvas || canvas.width === 0 || canvas.height === 0) {
+              console.error('Invalid canvas generated', {
+                canvasWidth: canvas ? canvas.width : 'null',
+                canvasHeight: canvas ? canvas.height : 'null',
+                snapshotRefInnerHTML: snapshotRef.current.innerHTML,
+              });
+              alert('Failed to capture snapshot: Invalid canvas.');
+              setIsCapturing(false);
+              return;
+            }
+
+            // Attempt toBlob
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `order_${data.orderId}.jpg`;
+                  link.click();
+                  window.URL.revokeObjectURL(url);
+                  setIsCapturing(false);
+                } else {
+                  console.error('Blob is null or undefined');
+                  // Fallback to toDataURL
+                  const image = canvas.toDataURL('image/jpeg', 0.98); // Higher quality
+                  console.log('Fallback Data URL:', image);
+                  window.open(image); // Verify in new tab
+                  const link = document.createElement('a');
+                  link.href = image;
+                  link.download = `order_${data.orderId}.jpg`;
+                  link.click();
+                  setIsCapturing(false);
+                }
+              },
+              'image/jpeg',
+              0.98 // Higher quality for better text clarity
+            );
+          }).catch(error => {
+            console.error('html2canvas error:', error);
+            alert('Failed to capture snapshot. Please try again.');
             setIsCapturing(false);
-            return;
-          }
-
-          // Attempt toBlob
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `order_${data.orderId}.jpg`;
-                link.click();
-                window.URL.revokeObjectURL(url);
-                setIsCapturing(false);
-              } else {
-                console.error('Blob is null or undefined');
-                // Fallback to toDataURL
-                const image = canvas.toDataURL('image/jpeg', 0.9);
-                console.log('Fallback Data URL:', image);
-                window.open(image); // Verify in new tab
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = `order_${data.orderId}.jpg`;
-                link.click();
-                setIsCapturing(false);
-              }
-            },
-            'image/jpeg',
-            0.9
-          );
-        }).catch(error => {
-          console.error('html2canvas error:', error);
-          alert('Failed to capture snapshot. Please try again.');
-          setIsCapturing(false);
-        });
+          });
+        }, 100); // Short delay to ensure DOM update
       }
     } catch (error) {
       console.error('Snapshot error:', error);
@@ -106,58 +113,34 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
   };
 
   const renderJewelryDetails = () => {
-    if (!data.jewelryDetails) return null;
-
-    const details = data.jewelryDetails;
-    const typeSpecificDetails = [];
-
-    const commonDetails = [
-      { label: 'Gold Type', value: details.goldType },
-      { label: 'Gold Color', value: details.goldColor },
-      { label: 'Diamond Type', value: details.diamondType },
-      { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'None' },
-      { label: 'Certification', value: details.diamondCertification },
-      { label: 'Clarities', value: details.clarities?.join(', ') || 'None' },
-      { label: 'Diamond Size', value: details.diamondSize },
-      { label: 'Shapes', value: details.shapes?.join(', ') || 'None' },
-      { label: 'Notes', value: details.notes },
-    ];
-
-    switch (data.jewelryType) {
-      case 'Ring':
-        typeSpecificDetails.push({ label: 'Ring Size', value: `${details.ringSize} (${details.sizeUnit})` });
-        break;
-      case 'EarRing':
-        typeSpecificDetails.push({ label: 'Fitting Type', value: details.fittingType });
-        break;
-      case 'Bracletes':
-        typeSpecificDetails.push({ label: 'Bracelet Size', value: `${details.braceletSize} inches` });
-        break;
-      case 'Necklace':
-        typeSpecificDetails.push({ label: 'Necklace Size', value: `${details.necklaceSize} inches` });
-        break;
-      case 'Pendant':
-        if (details.chainOption === 'With Chain') {
-          typeSpecificDetails.push(
-            { label: 'Chain Option', value: details.chainOption },
-            { label: 'Jumping', value: details.jumping ? 'Yes' : 'No' },
-            { label: 'Chain Length', value: `${details.chainLength} mm` }
-          );
-        } else {
-          typeSpecificDetails.push({ label: 'Chain Option', value: details.chainOption });
-        }
-        break;
-      default:
-        break;
+    // Fallback if jewelryDetails is missing
+    if (!data.jewelryDetails) {
+      return (
+        <div style={{ color: 'red', fontSize: '16px', lineHeight: '1.6' }}>
+          Warning: Jewelry details are missing or undefined. Please check data input.
+        </div>
+      );
     }
 
-    return [...commonDetails, ...typeSpecificDetails].map((item, index) => (
-      item.value && (
-        <div key={index} className="flex border-b border-gray-200 py-2.5">
-          <div className="w-1/3 font-medium text-gray-700">{item.label}:</div>
-          <div className="w-2/3 text-gray-800">{item.value}</div>
-        </div>
-      )
+    const details = data.jewelryDetails;
+    // Force render all 9 core items with fallbacks
+    const allDetails = [
+      { label: 'Gold Type', value: details.goldType || 'Not specified' },
+      { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+      { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+      { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+      { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+      { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+      { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+      { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+      { label: 'Ring Size', value: details.ringSize ? `${details.ringSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
+    ];
+
+    return allDetails.map((item, index) => (
+      <div key={index} style={{ marginBottom: '15px', lineHeight: '1.6', fontSize: '16px' }}>
+        <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>{item.label}:</span>
+        <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{item.value}</span>
+      </div>
     ));
   };
 
@@ -169,29 +152,29 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
           <p className="text-gray-600">Review your order before confirming</p>
         </div>
 
-        {/* Off-screen div for snapshot capture (no hidden class) */}
+        {/* Off-screen div for snapshot capture */}
         <div ref={snapshotRef} style={{ position: 'absolute', left: '-9999px' }}>
-          <div className="p-6">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Order Snapshot</h3>
+          <div className="p-6" style={{ maxWidth: '600px', fontFamily: 'Arial, sans-serif' }}>
+            <div style={{ marginBottom: '20px' }}>
+              <h3 className="text-xl font-bold text-gray-800" style={{ marginBottom: '15px' }}>Order Snapshot</h3>
             </div>
-            <div className="mb-4">
-              <div className="flex">
-                <div className="w-1/3 font-bold text-gray-700">Order ID:</div>
-                <div className="w-2/3 text-gray-800 font-medium">{data.orderId}</div>
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '10px', lineHeight: '1.6', fontSize: '16px' }}>
+                <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>Order ID:</span>
+                <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{data.orderId}</span>
               </div>
-              <div className="flex">
-                <div className="w-1/3 font-bold text-gray-700">Quantity:</div>
-                <div className="w-2/3 text-gray-800 font-medium">{data.quantity}</div>
+              <div style={{ marginBottom: '10px', lineHeight: '1.6', fontSize: '16px' }}>
+                <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>Quantity:</span>
+                <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{data.quantity}</span>
               </div>
-              <div className="flex">
-                <div className="w-1/3 font-bold text-gray-700">Jewelry Type:</div>
-                <div className="w-2/3 text-gray-800 font-medium">{data.jewelryType}</div>
+              <div style={{ marginBottom: '10px', lineHeight: '1.6', fontSize: '16px' }}>
+                <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>Jewelry Type:</span>
+                <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{data.jewelryType}</span>
               </div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-lg p-5">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Jewelry Specifications</h3>
-              <div className="divide-y divide-gray-200">
+            <div style={{ backgroundColor: '#ffffff', border: '1px solid #E5E7EB', borderRadius: '5px', padding: '15px', marginTop: '20px' }}>
+              <h3 className="text-lg font-semibold text-gray-800" style={{ marginBottom: '15px' }}>Jewelry Specifications</h3>
+              <div>
                 {renderJewelryDetails()}
               </div>
             </div>
