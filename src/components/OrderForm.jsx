@@ -1,4 +1,3 @@
-// src/components/OrderForm.js
 import React, { useState, useEffect } from 'react';
 import RingForm from './RingForm';
 import EarringForm from './EarringForm';
@@ -7,12 +6,15 @@ import BraceletForm from './BraceletForm';
 import NecklaceForm from './NecklaceForm';
 
 function generateOrderId() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id = '';
-  for (let i = 0; i < 8; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
+  // Get the last used ID from localStorage or start from 2500
+  const lastId = localStorage.getItem('lastOrderId');
+  const startId = lastId ? parseInt(lastId, 10) : 2499;
+  const newId = startId + 1;
+
+  // Save the new ID for next time
+  localStorage.setItem('lastOrderId', newId.toString());
+
+  return `LMU${newId}`;
 }
 
 const OrderForm = ({ onSubmit }) => {
@@ -24,7 +26,8 @@ const OrderForm = ({ onSubmit }) => {
   const [quantity, setQuantity] = useState('');
   const [jewelryType, setJewelryType] = useState(null);
   const [jewelryDetails, setJewelryDetails] = useState({});
-  
+  const [currency, setCurrency] = useState('INR'); // Default currency
+
   // Initialize order ID on component mount
   useEffect(() => {
     setOrderId(generateOrderId());
@@ -33,8 +36,6 @@ const OrderForm = ({ onSubmit }) => {
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setFile(e.target.files[0]);
-      setPrice('');
-      setProductName('');
     }
   };
 
@@ -45,14 +46,29 @@ const OrderForm = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Validate quantity
     const qty = parseInt(quantity);
     if (isNaN(qty) || qty < 1) {
       alert('Please enter a valid quantity (minimum 1)');
       return;
     }
-    
+
+    // Validate product details
+    if (!file && (!productName || !price)) {
+      alert('Please either upload a design file or enter product details');
+      return;
+    }
+
+    // Validate price if entered
+    if (price) {
+      const priceValue = parseFloat(price);
+      if (isNaN(priceValue) || priceValue <= 0) {
+        alert('Please enter a valid price');
+        return;
+      }
+    }
+
     const orderData = {
       orderId,
       clientName,
@@ -61,27 +77,34 @@ const OrderForm = ({ onSubmit }) => {
       productName,
       quantity: qty,
       jewelryType,
-      jewelryDetails
+      jewelryDetails,
+      currency,
     };
-    
+
     onSubmit(orderData);
   };
 
   const renderJewelryForm = () => {
     if (!jewelryType) return null;
-    
+
     const commonProps = {
       details: jewelryDetails,
-      setDetails: setJewelryDetails
+      setDetails: setJewelryDetails,
     };
-    
+
     switch (jewelryType) {
-      case 'Ring': return <RingForm {...commonProps} />;
-      case 'EarRing': return <EarringForm {...commonProps} />;
-      case 'Pendant': return <PendantForm {...commonProps} />;
-      case 'Bracletes': return <BraceletForm {...commonProps} />;
-      case 'Necklace': return <NecklaceForm {...commonProps} />;
-      default: return null;
+      case 'Ring':
+        return <RingForm {...commonProps} />;
+      case 'EarRing':
+        return <EarringForm {...commonProps} />;
+      case 'Pendant':
+        return <PendantForm {...commonProps} />;
+      case 'Bracletes':
+        return <BraceletForm {...commonProps} />;
+      case 'Necklace':
+        return <NecklaceForm {...commonProps} />;
+      default:
+        return null;
     }
   };
 
@@ -95,8 +118,8 @@ const OrderForm = ({ onSubmit }) => {
             <div className="flex-1 p-3 bg-gray-100 rounded-lg border border-gray-300">
               {orderId}
             </div>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setOrderId(generateOrderId())}
               className="ml-3 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
             >
@@ -105,7 +128,7 @@ const OrderForm = ({ onSubmit }) => {
           </div>
           <p className="mt-1 text-sm text-gray-500">Automatically generated unique order ID</p>
         </div>
-        
+
         {/* Client Name */}
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Client Name</label>
@@ -118,8 +141,8 @@ const OrderForm = ({ onSubmit }) => {
             required
           />
         </div>
-        
-        {/* File Upload or Product Info */}
+
+        {/* File Upload AND Product Info */}
         <div className="md:col-span-2">
           <div className="flex flex-col md:flex-row gap-6">
             {/* File Upload */}
@@ -130,26 +153,36 @@ const OrderForm = ({ onSubmit }) => {
                   type="file"
                   onChange={handleFileChange}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  accept=".jpg,.jpeg"
                 />
                 <div className="flex flex-col items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-10 w-10 text-indigo-500 mb-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
                   </svg>
-                  <p className="text-gray-600">
-                    {file ? file.name : 'Click to upload or drag and drop'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">PDF, JPG, PNG up to 10MB</p>
+                  <p className="text-gray-600">{file ? file.name : 'Click to upload or drag and drop'}</p>
+                  <p className="text-sm text-gray-500 mt-1">JPG files only, up to 10MB</p>
                 </div>
               </div>
             </div>
-            
-            {/* Or Divider */}
+
+            {/* And Divider */}
             <div className="flex items-center justify-center">
               <div className="h-px w-16 bg-gray-300 md:h-16 md:w-px"></div>
-              <div className="px-4 py-2 bg-gray-100 rounded-full text-gray-500">OR</div>
+              <div className="px-4 py-2 bg-gray-100 rounded-full text-gray-500">AND</div>
               <div className="h-px w-16 bg-gray-300 md:h-16 md:w-px"></div>
             </div>
-            
+
             {/* Manual Input */}
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">Enter Product Details</label>
@@ -162,25 +195,33 @@ const OrderForm = ({ onSubmit }) => {
                     onChange={(e) => setProductName(e.target.value)}
                     className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="Enter product name"
-                    disabled={!!file}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Price (₹)</label>
-                  <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Enter price"
-                    disabled={!!file}
-                  />
+                  <label className="block text-sm text-gray-600 mb-1">Price</label>
+                  <div className="flex">
+                    <input
+                      type="number"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      className="w-full p-2.5 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      placeholder="Enter price"
+                    />
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="p-2.5 border border-l-0 border-gray-300 rounded-r-lg bg-white"
+                    >
+                      <option value="INR">₹ INR</option>
+                      <option value="USD">$ USD</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Quantity */}
         <div>
           <label className="block text-gray-700 font-medium mb-2">Quantity</label>
@@ -190,10 +231,11 @@ const OrderForm = ({ onSubmit }) => {
             onChange={(e) => setQuantity(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="Enter quantity"
+            min="1"
             required
           />
         </div>
-        
+
         {/* Jewelry Type Selection */}
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Select Jewelry Type</label>
@@ -204,8 +246,8 @@ const OrderForm = ({ onSubmit }) => {
                 type="button"
                 onClick={() => handleJewelryTypeSelect(type)}
                 className={`p-4 rounded-lg border-2 font-medium transition-all ${
-                  jewelryType === type 
-                    ? 'bg-green-100 border-green-500 text-green-700' 
+                  jewelryType === type
+                    ? 'bg-green-100 border-green-500 text-green-700'
                     : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -214,7 +256,7 @@ const OrderForm = ({ onSubmit }) => {
             ))}
           </div>
         </div>
-        
+
         {/* Dynamic Jewelry Form */}
         {jewelryType && (
           <div className="md:col-span-2 mt-4">
@@ -224,15 +266,15 @@ const OrderForm = ({ onSubmit }) => {
             </div>
           </div>
         )}
-        
+
         {/* Submit Button */}
         <div className="md:col-span-2 mt-6">
           <button
             type="submit"
             disabled={!jewelryType}
             className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-              jewelryType 
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+              jewelryType
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
