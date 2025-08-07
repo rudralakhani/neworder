@@ -1,4 +1,3 @@
-// src/components/Forms/NecklaceForm.js
 import React from 'react';
 import DiamondColorSelector from './DiamondColorSelector';
 import DiamondClaritySelector from './DiamondClaritySelector';
@@ -46,7 +45,7 @@ const NecklaceForm = ({ details, setDetails }) => {
               className={`py-2.5 rounded-lg border font-medium ${
                 details.goldColor === color 
                   ? 'bg-green-100 border-green-500 text-green-700' 
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg极端的-50'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               {color}

@@ -99,7 +99,7 @@ const OrderForm = ({ onSubmit }) => {
         return <EarringForm {...commonProps} />;
       case 'Pendant':
         return <PendantForm {...commonProps} />;
-      case 'Bracletes':
+      case 'Bracelet': // Fixed typo from 'Bracletes' to 'Bracelet'
         return <BraceletForm {...commonProps} />;
       case 'Necklace':
         return <NecklaceForm {...commonProps} />;
@@ -240,7 +240,7 @@ const OrderForm = ({ onSubmit }) => {
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Select Jewelry Type</label>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {['Ring', 'EarRing', 'Pendant', 'Bracelets', 'Necklace'].map((type) => (
+            {['Ring', 'EarRing', 'Pendant', 'Bracelet', 'Necklace'].map((type) => (
               <button
                 key={type}
                 type="button"

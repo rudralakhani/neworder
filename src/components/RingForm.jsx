@@ -1,4 +1,3 @@
-// src/components/Forms/RingForm.js
 import React from 'react';
 import DiamondColorSelector from './DiamondColorSelector';
 import DiamondClaritySelector from './DiamondClaritySelector';

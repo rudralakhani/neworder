@@ -1,4 +1,3 @@
-// src/components/Forms/PendantForm.js
 import React, { useState } from 'react';
 import DiamondColorSelector from './DiamondColorSelector';
 import DiamondClaritySelector from './DiamondClaritySelector';
@@ -60,7 +59,7 @@ const PendantForm = ({ details, setDetails }) => {
       
       {/* Diamond Type */}
       <div>
-        <label className="block text-gray-700 font-medium mb-极端的2">Diamond Type</label>
+        <label className="block text-gray-700 font-medium mb-2">Diamond Type</label>
         <div className="grid grid-cols-3 gap-2">
           {['CVD', 'Natural', 'Other'].map(type => (
             <button
@@ -106,7 +105,7 @@ const PendantForm = ({ details, setDetails }) => {
                   onClick={() => handleChange('diamondCertification', details.diamondCertification === cert ? '' : cert)}
                   className={`py-2.5 rounded-lg border font-medium ${
                     details.diamondCertification === cert 
-                      ? '极端的bg-green-100 border-green-500 text-green-700' 
+                      ? 'bg-green-100 border-green-500 text-green-700' 
                       : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
