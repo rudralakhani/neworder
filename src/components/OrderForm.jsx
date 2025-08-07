@@ -99,7 +99,7 @@ const OrderForm = ({ onSubmit }) => {
         return <EarringForm {...commonProps} />;
       case 'Pendant':
         return <PendantForm {...commonProps} />;
-      case 'Bracelets':
+      case 'Bracletes':
         return <BraceletForm {...commonProps} />;
       case 'Necklace':
         return <NecklaceForm {...commonProps} />;
