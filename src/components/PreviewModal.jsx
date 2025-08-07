@@ -52,11 +52,8 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
             allowTaint: true,
             letterRendering: true, // Improve text rendering
             width: 800, // Explicitly set width for better control
-<<<<<<< HEAD
             height: 1000, // Increased height to accommodate all items
-=======
             height: 1000, // Increased height to accommodate all 9 items
->>>>>>> 6a8d9e75f0048802bc9518771be68b07b3c850cf
           }).then(canvas => {
             // Restore original styles
             snapshotElement.style.display = originalDisplay;
@@ -116,121 +113,106 @@ const PreviewModal = ({ data, onConfirm, onCancel }) => {
     }
   };
 
-  const renderJewelryDetails = () => {
-    // Fallback if jewelryDetails is missing
-    if (!data.jewelryDetails) {
-      return (
-        <div style={{ color: 'red', fontSize: '16px', lineHeight: '1.6' }}>
-          Warning: Jewelry details are missing or undefined. Please check data input.
-        </div>
-      );
-    }
-
-    const details = data.jewelryDetails;
-<<<<<<< HEAD
-    let allDetails = [];
-
-    // Define fields based on jewelry type
-    switch (data.jewelryType) {
-      case 'Ring':
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-          { label: 'Ring Size', value: details.ringSize ? `${details.ringSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
-        ];
-        break;
-      case 'EarRing':
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-          { label: 'Earring Style', value: details.earringStyle || 'Not specified' },
-        ];
-        break;
-      case 'Pendant':
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-          { label: 'Chain Length', value: details.chainLength ? `${details.chainLength} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
-        ];
-        break;
-      case 'Bracelets':
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-          { label: 'Bracelet Size', value: details.braceletSize ? `${details.braceletSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
-        ];
-        break;
-      case 'Necklace':
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-          { label: 'Necklace Length', value: details.necklaceLength ? `${details.necklaceLength} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
-        ];
-        break;
-      default:
-        allDetails = [
-          { label: 'Gold Type', value: details.goldType || 'Not specified' },
-          { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-          { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-          { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-          { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-          { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-          { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-          { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-        ];
-    }
-=======
-    // Force render all 9 core items with fallbacks
-    const allDetails = [
-      { label: 'Gold Type', value: details.goldType || 'Not specified' },
-      { label: 'Gold Color', value: details.goldColor || 'Not specified' },
-      { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
-      { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
-      { label: 'Certification', value: details.diamondCertification || 'Not specified' },
-      { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
-      { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
-      { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
-      { label: 'Ring Size', value: details.ringSize ? `${details.ringSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
-    ];
->>>>>>> 6a8d9e75f0048802bc9518771be68b07b3c850cf
-
-    return allDetails.map((item, index) => (
-      <div key={index} style={{ marginBottom: '15px', lineHeight: '1.6', fontSize: '16px' }}>
-        <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>{item.label}:</span>
-        <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{item.value}</span>
+ const renderJewelryDetails = () => {
+  // Fallback if jewelryDetails is missing
+  if (!data.jewelryDetails) {
+    return (
+      <div style={{ color: 'red', fontSize: '16px', lineHeight: '1.6' }}>
+        Warning: Jewelry details are missing or undefined. Please check data input.
       </div>
-    ));
-  };
+    );
+  }
+
+  const details = data.jewelryDetails;
+  let allDetails = [];
+
+  // Define fields based on jewelry type
+  switch (data.jewelryType) {
+    case 'Ring':
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+        { label: 'Ring Size', value: details.ringSize ? `${details.ringSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
+      ];
+      break;
+    case 'EarRing':
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+        { label: 'Earring Style', value: details.earringStyle || 'Not specified' },
+      ];
+      break;
+    case 'Pendant':
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+        { label: 'Chain Length', value: details.chainLength ? `${details.chainLength} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
+      ];
+      break;
+    case 'Bracelets':
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+        { label: 'Bracelet Size', value: details.braceletSize ? `${details.braceletSize} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
+      ];
+      break;
+    case 'Necklace':
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+        { label: 'Necklace Length', value: details.necklaceLength ? `${details.necklaceLength} (${details.sizeUnit || 'N/A'})` : 'Not specified' },
+      ];
+      break;
+    default:
+      allDetails = [
+        { label: 'Gold Type', value: details.goldType || 'Not specified' },
+        { label: 'Gold Color', value: details.goldColor || 'Not specified' },
+        { label: 'Diamond Type', value: details.diamondType || 'Not specified' },
+        { label: 'Diamond Colors', value: details.diamondColors?.join(', ') || 'Not specified' },
+        { label: 'Certification', value: details.diamondCertification || 'Not specified' },
+        { label: 'Clarities', value: details.clarities?.join(', ') || 'Not specified' },
+        { label: 'Diamond Size', value: details.diamondSize || 'Not specified' },
+        { label: 'Shapes', value: details.shapes?.join(', ') || 'Not specified' },
+      ];
+  }
+
+  return allDetails.map((item, index) => (
+    <div key={index} style={{ marginBottom: '15px', lineHeight: '1.6', fontSize: '16px' }}>
+      <span style={{ fontWeight: 'bold', marginRight: '15px', display: 'inline-block', width: '150px' }}>{item.label}:</span>
+      <span style={{ wordBreak: 'break-word', display: 'inline-block', width: '400px' }}>{item.value}</span>
+    </div>
+  ));
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
