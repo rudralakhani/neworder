@@ -5,21 +5,39 @@ const cors = require('cors');
 
 const app = express();
 
-// Allow CORS for frontend running on localhost and Vercel
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://neworder-tau.vercel.app'],
-  methods: ['GET', 'POST'],
-  credentials: true,
-}));
+// Configure CORS with specific allowed origins
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://neworder-tau.vercel.app'
+];
+
+// Enhanced CORS middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+// Explicit OPTIONS handler for all routes
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
+
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'luminluxedata@gmail.com',
-    pass: 'jhpt dijp jipd xvjg',
-  },
+    user: process.env.GMAIL_USER || 'luminluxedata@gmail.com',
+    pass: process.env.GMAIL_PASS || 'jhpt dijp jipd xvjg'
+  }
 });
+
 
 const generateContent = (data) => {
   const renderJewelryDetails = (details) => {
@@ -86,47 +104,55 @@ const generateContent = (data) => {
   return content;
 };
 
-app.post('/send-email', async (req, res) => {
-  const orderData = req.body;
+app.post('/api/send-email', async (req, res) => {
+  try {
+    const orderData = req.body;
+    const doc = new PDFDocument();
+    let buffers = [];
+    
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(buffers);
 
-  // Generate PDF with PDFKit
-  const doc = new PDFDocument();
-  let buffers = [];
-  doc.on('data', buffers.push.bind(buffers));
-  doc.on('end', () => {
-    const pdfBuffer = Buffer.concat(buffers);
-
-    const mailOptions = {
-      from: process.env.GMAIL_USER,
-      to: 'lakhanirudra9109@gmail.com',
-      subject: 'New Order',
-      text: 'Please find the attached order details.',
-      attachments: [
-        {
+      const mailOptions = {
+        from: process.env.GMAIL_USER || 'luminluxedata@gmail.com',
+        to: 'dhruvdhameliya0045@gmail.com',
+        subject: 'New Order',
+        text: 'Please find the attached order details.',
+        attachments: [{ 
           filename: 'order.pdf',
-          content: pdfBuffer,
-        },
-      ],
-    };
+          content: pdfBuffer
+        }]
+      };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Email error:', error);
-        return res.status(500).send(`Error sending email: ${error.message}`);
-      }
-      console.log('Email sent:', info.response);
-      res.send('Email sent successfully');
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Email error:', error);
+          return res.status(500).json({ error: `Error sending email: ${error.message}` });
+        }
+        console.log('Email sent:', info.response);
+        res.json({ message: 'Email sent successfully' });
+      });
     });
-  });
 
-  // Add content to PDF
-  const content = generateContent(orderData);
-  content.forEach(line => {
-    doc.text(line, { continued: false });
-  });
-  doc.end();
+    const content = generateContent(orderData);
+    content.forEach(line => doc.text(line));
+    doc.end();
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.listen(3001, () => {
-  console.log('Server running on port 3001');
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.send('Jewelry Order API is running');
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = app;

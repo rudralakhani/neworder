@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import RingForm from './RingForm';
-import EarringForm from './EarringForm';
-import PendantForm from './PendantForm';
-import BraceletForm from './BraceletForm';
-import NecklaceForm from './NecklaceForm';
+import RingForm from './components/RingForm';
+import EarringForm from './components/EarringForm';
+import PendantForm from './components/PendantForm';
+import BraceletForm from './components/BraceletForm';
+import NecklaceForm from './components/NecklaceForm';
+import { useLocation } from 'react-router-dom';
 
 function generateOrderId() {
-  // Get the last used ID from localStorage or start from 2500
   const lastId = localStorage.getItem('lastOrderId');
   const startId = lastId ? parseInt(lastId, 10) : 2499;
   const newId = startId + 1;
-
-  // Save the new ID for next time
   localStorage.setItem('lastOrderId', newId.toString());
-
   return `LMU${newId}`;
 }
 
 const OrderForm = ({ onSubmit }) => {
-  const [orderId, setOrderId] = useState('');
-  const [clientName, setClientName] = useState('');
+  const { state } = useLocation();
+  const initialOrder = state?.order || {};
+  const isEdit = !!initialOrder.id;
+  const [orderId, setOrderId] = useState(initialOrder.orderId || '');
+  const [clientName, setClientName] = useState(initialOrder.clientName || '');
   const [file, setFile] = useState(null);
-  const [price, setPrice] = useState('');
-  const [productName, setProductName] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [jewelryType, setJewelryType] = useState(null);
-  const [jewelryDetails, setJewelryDetails] = useState({});
-  const [currency, setCurrency] = useState('INR'); // Default currency
+  const [price, setPrice] = useState(initialOrder.price || '');
+  const [productName, setProductName] = useState(initialOrder.productName || '');
+  const [quantity, setQuantity] = useState(initialOrder.quantity || '');
+  const [jewelryType, setJewelryType] = useState(initialOrder.jewelryType || null);
+  const [jewelryDetails, setJewelryDetails] = useState(initialOrder.jewelryDetails || {});
+  const [currency, setCurrency] = useState(initialOrder.currency || 'INR');
 
-  // Initialize order ID on component mount
   useEffect(() => {
-    setOrderId(generateOrderId());
-  }, []);
+    if (!isEdit) {
+      setOrderId(generateOrderId());
+    }
+  }, [isEdit]);
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
@@ -46,21 +47,15 @@ const OrderForm = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate quantity
     const qty = parseInt(quantity);
     if (isNaN(qty) || qty < 1) {
       alert('Please enter a valid quantity (minimum 1)');
       return;
     }
-
-    // Validate product details
     if (!file && (!productName || !price)) {
       alert('Please either upload a design file or enter product details');
       return;
     }
-
-    // Validate price if entered
     if (price) {
       const priceValue = parseFloat(price);
       if (isNaN(priceValue) || priceValue <= 0) {
@@ -68,30 +63,29 @@ const OrderForm = ({ onSubmit }) => {
         return;
       }
     }
-
     const orderData = {
       orderId,
       clientName,
-      file: file ? file.name : null,
+      file: file ? file.name : initialOrder.file || null,
       price,
       productName,
       quantity: qty,
       jewelryType,
       jewelryDetails,
       currency,
+      status: initialOrder.status || 'ongoing',
+      id: initialOrder.id || null,
+      createdAt: initialOrder.createdAt || new Date().toISOString(),
     };
-
-    onSubmit(orderData);
+    onSubmit(orderData, isEdit);
   };
 
   const renderJewelryForm = () => {
     if (!jewelryType) return null;
-
     const commonProps = {
       details: jewelryDetails,
       setDetails: setJewelryDetails,
     };
-
     switch (jewelryType) {
       case 'Ring':
         return <RingForm {...commonProps} />;
@@ -99,7 +93,7 @@ const OrderForm = ({ onSubmit }) => {
         return <EarringForm {...commonProps} />;
       case 'Pendant':
         return <PendantForm {...commonProps} />;
-      case 'Bracelets':
+      case 'Bracletes':
         return <BraceletForm {...commonProps} />;
       case 'Necklace':
         return <NecklaceForm {...commonProps} />;
@@ -111,25 +105,24 @@ const OrderForm = ({ onSubmit }) => {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Order ID */}
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Order ID</label>
           <div className="flex items-center">
             <div className="flex-1 p-3 bg-gray-100 rounded-lg border border-gray-300">
               {orderId}
             </div>
-            <button
-              type="button"
-              onClick={() => setOrderId(generateOrderId())}
-              className="ml-3 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
-            >
-              Regenerate
-            </button>
+            {!isEdit && (
+              <button
+                type="button"
+                onClick={() => setOrderId(generateOrderId())}
+                className="ml-3 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
+              >
+                Regenerate
+              </button>
+            )}
           </div>
           <p className="mt-1 text-sm text-gray-500">Automatically generated unique order ID</p>
         </div>
-
-        {/* Client Name */}
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Client Name</label>
           <input
@@ -141,11 +134,8 @@ const OrderForm = ({ onSubmit }) => {
             required
           />
         </div>
-
-        {/* File Upload AND Product Info */}
         <div className="md:col-span-2">
           <div className="flex flex-col md:flex-row gap-6">
-            {/* File Upload */}
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">Upload Design File</label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-400 transition-colors relative">
@@ -170,20 +160,16 @@ const OrderForm = ({ onSubmit }) => {
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                     />
                   </svg>
-                  <p className="text-gray-600">{file ? file.name : 'Click to upload or drag and drop'}</p>
+                  <p className="text-gray-600">{file ? file.name : initialOrder.file || 'Click to upload or drag and drop'}</p>
                   <p className="text-sm text-gray-500 mt-1">JPG files only, up to 10MB</p>
                 </div>
               </div>
             </div>
-
-            {/* And Divider */}
             <div className="flex items-center justify-center">
               <div className="h-px w-16 bg-gray-300 md:h-16 md:w-px"></div>
               <div className="px-4 py-2 bg-gray-100 rounded-full text-gray-500">AND</div>
               <div className="h-px w-16 bg-gray-300 md:h-16 md:w-px"></div>
             </div>
-
-            {/* Manual Input */}
             <div className="flex-1">
               <label className="block text-gray-700 font-medium mb-2">Enter Product Details</label>
               <div className="space-y-4">
@@ -221,8 +207,6 @@ const OrderForm = ({ onSubmit }) => {
             </div>
           </div>
         </div>
-
-        {/* Quantity */}
         <div>
           <label className="block text-gray-700 font-medium mb-2">Quantity</label>
           <input
@@ -235,12 +219,10 @@ const OrderForm = ({ onSubmit }) => {
             required
           />
         </div>
-
-        {/* Jewelry Type Selection */}
         <div className="md:col-span-2">
           <label className="block text-gray-700 font-medium mb-2">Select Jewelry Type</label>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {['Ring', 'EarRing', 'Pendant', 'Bracelets', 'Necklace'].map((type) => (
+            {['Ring', 'EarRing', 'Pendant', 'Bracletes', 'Necklace'].map((type) => (
               <button
                 key={type}
                 type="button"
@@ -256,8 +238,6 @@ const OrderForm = ({ onSubmit }) => {
             ))}
           </div>
         </div>
-
-        {/* Dynamic Jewelry Form */}
         {jewelryType && (
           <div className="md:col-span-2 mt-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">{jewelryType} Specifications</h3>
@@ -266,8 +246,6 @@ const OrderForm = ({ onSubmit }) => {
             </div>
           </div>
         )}
-
-        {/* Submit Button */}
         <div className="md:col-span-2 mt-6">
           <button
             type="submit"
@@ -278,7 +256,7 @@ const OrderForm = ({ onSubmit }) => {
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Place Order
+            {isEdit ? 'Update Order' : 'Place Order'}
           </button>
         </div>
       </div>

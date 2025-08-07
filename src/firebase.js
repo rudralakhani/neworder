@@ -1,4 +1,3 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -12,13 +11,8 @@ const firebaseConfig = {
   appId: "1:624583701493:web:3d611effd5cee4743fe6bc"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
-
-// Initialize Firebase Storage and get a reference to the service
 const storage = getStorage(app);
 
 export { db, storage };
